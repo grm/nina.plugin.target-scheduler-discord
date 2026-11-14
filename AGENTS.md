@@ -20,7 +20,7 @@ Also see [CURSOR.md](CURSOR.md).
 
 ## Constraints
 
-- Target **net10.0-windows** and `NINA.Plugin` nightly matching `Directory.Build.props`.
+- Target **net8.0-windows** and `NINA.Plugin` **3.2.0.9001** (matching `Directory.Build.props`) for N.I.N.A. 3.2 compatibility.
 - Do not rename exported sequencer types/namespaces after publishing (saved sequences store FQTNs).
 - Keep webhook URL and secrets out of git; settings live in NINA plugin settings JSON under `%LOCALAPPDATA%`.
 - Prefer the Target Scheduler **HTTP API** (`/ts/v0`) over referencing the TS plugin assembly.

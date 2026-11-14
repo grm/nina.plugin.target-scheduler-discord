@@ -14,7 +14,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
-          dotnet-version: '10.0.4xx'
+          dotnet-version: |
+            8.0.x
+            10.0.x
       - name: Validate and package release
         shell: pwsh
         env:
@@ -52,7 +54,6 @@ jobs:
           overwrite_files: false
           draft: false
           prerelease: ${{ vars.PLUGIN_CHANNEL == 'Beta' }}
-      # On a rerun, use the already published immutable files, not newly rebuilt ZIP bytes.
       - name: Verify the assets actually published
         shell: pwsh
         env:
@@ -68,4 +69,3 @@ jobs:
           name: published-release
           path: published/*
           if-no-files-found: error
-

@@ -14,7 +14,7 @@ N.I.N.A. plugin that adds an Advanced Sequencer instruction to post **Target Sch
 
 ## Requirements
 
-- N.I.N.A. ≥ 3.3.0.1060
+- N.I.N.A. ≥ 3.2.0.9001
 - [Target Scheduler](https://github.com/tcpalmer/nina.plugin.targetscheduler) plugin with its REST API enabled
 - A Discord webhook
 
@@ -48,7 +48,7 @@ git push origin v1.0.0.0
 
 ## Local development
 
-.NET SDK **10.0.4xx** + PowerShell 7.
+.NET SDK **8+** (targets `net8.0-windows`) + PowerShell 7.
 
 ```powershell
 dotnet restore NINA.Plugin.TargetScheduler.Discord.slnx

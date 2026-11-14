@@ -2,7 +2,7 @@
   <!-- Single editable source of plugin identity and manifest metadata. -->
   <PropertyGroup>
     <PluginId>A7C4E2F1-9B38-4D6A-8E15-2F0C9A6B4D31</PluginId>
-    <Version Condition="'$(Version)' == ''">1.0.1.0</Version>
+    <Version Condition="'$(Version)' == ''">1.0.2.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Title>Target Scheduler Discord</Title>
@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/grm/nina.plugin.target-scheduler-discord</RepositoryUrl>
     <PluginHomepage>https://github.com/grm/nina.plugin.target-scheduler-discord</PluginHomepage>
     <PluginTags>Target Scheduler,Discord,Webhook,Sequencer,Progress</PluginTags>
-    <MinimumNinaVersion>3.3.0.1060</MinimumNinaVersion>
+    <MinimumNinaVersion>3.2.0.9001</MinimumNinaVersion>
     <PluginLicense>MPL-2.0</PluginLicense>
     <PluginLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PluginLicenseUrl>
     <PluginChangelogUrl>https://github.com/grm/nina.plugin.target-scheduler-discord/blob/main/CHANGELOG.md</PluginChangelogUrl>
