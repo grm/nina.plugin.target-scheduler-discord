@@ -1,31 +1,31 @@
 # Target Scheduler Discord
 
-Plugin N.I.N.A. qui ajoute une instruction Advanced Sequencer pour publier l'avancement des cibles **Target Scheduler** sur Discord.
+N.I.N.A. plugin that adds an Advanced Sequencer instruction to post **Target Scheduler** target progress to Discord.
 
-## Fonctionnalités
+## Features
 
 - Instruction **TS: Send target status to Discord**
-- Une ligne par cible active (projets `ACTIVE`)
-- Pourcentage global (Accepted / Desired, comme Target Scheduler)
-- Compteurs filtre par filtre : `Accepted/Desired (acq Acquired)`
-- Tri par pourcentage d'avancement décroissant
-- Webhook Discord configurable dans les options du plugin
-- URL de l'API Target Scheduler configurable (défaut `http://localhost:8188/ts/v0`)
+- One line per active target (`ACTIVE` projects)
+- Overall completion percentage (Accepted / Desired, matching Target Scheduler)
+- Per-filter counts: `Accepted/Desired (acq Acquired)`
+- Sorted by completion percentage (descending)
+- Discord webhook configurable in plugin options
+- Target Scheduler API URL configurable (default `http://localhost:8188/ts/v0`)
 
-## Prérequis
+## Requirements
 
 - N.I.N.A. ≥ 3.3.0.1060
-- Plugin [Target Scheduler](https://github.com/tcpalmer/nina.plugin.targetscheduler) avec son API REST active
-- Un webhook Discord
+- [Target Scheduler](https://github.com/tcpalmer/nina.plugin.targetscheduler) plugin with its REST API enabled
+- A Discord webhook
 
 ## Configuration
 
 1. Options → Plugins → **Target Scheduler Discord**
-2. Coller l'URL du webhook Discord
-3. Vérifier l'URL de l'API TS si besoin
-4. Dans Advanced Sequencer, ajouter **TS: Send target status to Discord**
+2. Paste the Discord webhook URL
+3. Adjust the Target Scheduler API URL if needed
+4. In Advanced Sequencer, add **TS: Send target status to Discord**
 
-## Exemple de message Discord
+## Example Discord message
 
 ```text
 **Target Scheduler progress** — 2026-11-14 20:00 UTC
@@ -35,19 +35,19 @@ Plugin N.I.N.A. qui ajoute une instruction Advanced Sequencer pour publier l'ava
 
 ## Build & release (CI)
 
-Les workflows GitHub Actions :
+GitHub Actions workflows:
 
-- `ci.yml` — restore / build / test / packaging de validation à chaque push
-- `release.yml` — sur un tag `vMAJOR.MINOR.PATCH.BUILD` (ex. `v1.0.0.0`), produit le ZIP + manifest et crée la GitHub Release
+- `ci.yml` — restore / build / test / validation packaging on every push
+- `release.yml` — on a `vMAJOR.MINOR.PATCH.BUILD` tag (e.g. `v1.0.0.0`), produces the ZIP + manifest and creates the GitHub Release
 
 ```powershell
 git tag v1.0.0.0
 git push origin v1.0.0.0
 ```
 
-## Développement local
+## Local development
 
-SDK .NET **10.0.4xx** + PowerShell 7.
+.NET SDK **10.0.4xx** + PowerShell 7.
 
 ```powershell
 dotnet restore NINA.Plugin.TargetScheduler.Discord.slnx
@@ -56,4 +56,4 @@ dotnet test NINA.Plugin.TargetScheduler.Discord.slnx -c Release
 dotnet msbuild src/NINA.Plugin.TargetScheduler.Discord/NINA.Plugin.TargetScheduler.Discord.csproj -t:DeployPlugin -p:Configuration=Release
 ```
 
-Copier `local.props.example` vers `local.props` pour pointer `NinaExecutable` si besoin.
+Copy `local.props.example` to `local.props` to set `NinaExecutable` if needed.
