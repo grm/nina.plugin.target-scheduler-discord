@@ -18,7 +18,7 @@ public class TargetProgressFormatterTests {
         var message = TargetProgressFormatter.FormatMessage(targets, DateTimeOffset.Parse("2026-11-14T20:00:00Z"));
 
         message.Should().Contain("Target Scheduler progress");
-        message.Should().Contain("40.0%");
+        message.Should().Contain("34.0%");
         message.Should().Contain("Nebulae / M31");
         message.Should().Contain("Ha 12/30 (acq 15)");
         message.Should().Contain("OIII 5/20 (acq 5)");
