@@ -1,0 +1,25 @@
+<ResourceDictionary x:Class="NINA.Plugin.TargetScheduler.Discord.Features.settings.Resources"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="OptionsTemplate">
+        <StackPanel Margin="10" MaxWidth="720">
+            <TextBlock FontWeight="Bold" Text="Discord" />
+            <TextBlock Margin="0,4,0,0"
+                       TextWrapping="Wrap"
+                       Text="Webhook URL used by the sequencer instruction." />
+            <TextBox Margin="0,4,0,0"
+                     Text="{Binding Settings.DiscordWebhookUrl, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock Margin="0,16,0,0" FontWeight="Bold" Text="Target Scheduler API" />
+            <TextBlock Margin="0,4,0,0"
+                       TextWrapping="Wrap"
+                       Text="Base URL of the Target Scheduler REST API (default: http://localhost:8188/ts/v0)." />
+            <TextBox Margin="0,4,0,0"
+                     Text="{Binding Settings.TargetSchedulerApiBaseUrl, UpdateSourceTrigger=PropertyChanged}" />
+
+            <CheckBox Margin="0,12,0,0"
+                      Content="Include inactive targets"
+                      IsChecked="{Binding Settings.IncludeInactiveTargets}" />
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

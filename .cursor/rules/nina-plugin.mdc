@@ -1,0 +1,12 @@
+---
+description: NINA Target Scheduler Discord plugin conventions
+alwaysApply: true
+---
+
+# Target Scheduler Discord
+
+Follow [AGENTS.md](../../AGENTS.md) for architecture, release tags, and verification.
+
+- Progress % = Accepted/Desired from Target Scheduler API
+- Do not hardcode Discord webhooks or commit secrets
+- Prefer TS REST API over DLL references

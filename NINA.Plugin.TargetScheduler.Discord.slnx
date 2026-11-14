@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/NINA.Plugin.TargetScheduler.Discord/NINA.Plugin.TargetScheduler.Discord.csproj" />
+  <Project Path="tests/NINA.Plugin.TargetScheduler.Discord.Tests/NINA.Plugin.TargetScheduler.Discord.Tests.csproj" />
+</Solution>

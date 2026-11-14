@@ -1,0 +1,42 @@
+<Project>
+  <!-- Single editable source of plugin identity and manifest metadata. -->
+  <PropertyGroup>
+    <PluginId>A7C4E2F1-9B38-4D6A-8E15-2F0C9A6B4D31</PluginId>
+    <Version Condition="'$(Version)' == ''">1.0.0.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <Title>Target Scheduler Discord</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <Product>$(Title)</Product>
+    <Copyright>Copyright © 2026 grm</Copyright>
+    <Company>grm</Company>
+    <Authors>grm</Authors>
+    <Description>Advanced Sequencer instruction that posts Target Scheduler target progress to Discord.</Description>
+    <PluginLongDescription>Adds a sequencer instruction that queries the Target Scheduler API and posts one Discord line per active target (global completion %, images per filter), sorted by progress. Configure the Discord webhook URL (and optional TS API base URL) in the plugin options.</PluginLongDescription>
+    <RepositoryUrl>https://github.com/grm/nina.plugin.target-scheduler-discord</RepositoryUrl>
+    <PluginHomepage>https://github.com/grm/nina.plugin.target-scheduler-discord</PluginHomepage>
+    <PluginTags>Target Scheduler,Discord,Webhook,Sequencer,Progress</PluginTags>
+    <MinimumNinaVersion>3.3.0.1060</MinimumNinaVersion>
+    <PluginLicense>MPL-2.0</PluginLicense>
+    <PluginLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PluginLicenseUrl>
+    <PluginChangelogUrl>https://github.com/grm/nina.plugin.target-scheduler-discord/blob/main/CHANGELOG.md</PluginChangelogUrl>
+    <PluginFeaturedImageUrl></PluginFeaturedImageUrl>
+    <PluginScreenshotUrl></PluginScreenshotUrl>
+    <PluginAltScreenshotUrl></PluginAltScreenshotUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.InteropServices.GuidAttribute"><_Parameter1>$(PluginId)</_Parameter1></AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.InteropServices.ComVisibleAttribute"><_Parameter1>false</_Parameter1></AssemblyAttribute>
+    <AssemblyMetadata Include="MinimumApplicationVersion" Value="$(MinimumNinaVersion)" />
+    <AssemblyMetadata Include="License" Value="$(PluginLicense)" />
+    <AssemblyMetadata Include="LicenseURL" Value="$(PluginLicenseUrl)" />
+    <AssemblyMetadata Include="Repository" Value="$(RepositoryUrl)" />
+    <AssemblyMetadata Include="Homepage" Value="$(PluginHomepage)" />
+    <AssemblyMetadata Include="Tags" Value="$(PluginTags)" />
+    <AssemblyMetadata Include="LongDescription" Value="$(PluginLongDescription)" />
+    <AssemblyMetadata Include="ChangelogURL" Value="$(PluginChangelogUrl)" />
+    <AssemblyMetadata Include="FeaturedImageURL" Value="$(PluginFeaturedImageUrl)" />
+    <AssemblyMetadata Include="ScreenshotURL" Value="$(PluginScreenshotUrl)" />
+    <AssemblyMetadata Include="AltScreenshotURL" Value="$(PluginAltScreenshotUrl)" />
+  </ItemGroup>
+</Project>

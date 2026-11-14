@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Plugin.props" />
+  <PropertyGroup>
+    <RootNamespace>NINA.Plugin.TargetScheduler.Discord</RootNamespace>
+    <AssemblyName>NINA.Plugin.TargetScheduler.Discord</AssemblyName>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NINA.Plugin" Version="$(NinaPackageVersion)" />
+  </ItemGroup>
+  <Import Project="../../build/Plugin.targets" />
+</Project>
