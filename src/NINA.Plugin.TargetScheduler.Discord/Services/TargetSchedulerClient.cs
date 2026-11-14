@@ -42,12 +42,20 @@ public sealed class TargetSchedulerClient : ITargetSchedulerClient {
         var results = new List<TargetProgress>();
         foreach (var profile in activeProfiles) {
             token.ThrowIfCancellationRequested();
-            var projects = await GetAsync<List<TsProject>>(baseUri + $"profiles/{profile.ProfileId}/projects", token)
+            if (string.IsNullOrWhiteSpace(profile.Id)) {
+                throw new InvalidOperationException("Target Scheduler API profile is missing Id.");
+            }
+
+            var projects = await GetAsync<List<TsProject>>(baseUri + $"profiles/{profile.Id}/projects", token)
                 .ConfigureAwait(false) ?? new List<TsProject>();
 
-            foreach (var project in projects.Where(project => IsProjectIncluded(project))) {
+            foreach (var project in projects.Where(IsProjectIncluded)) {
                 token.ThrowIfCancellationRequested();
-                var targets = await GetAsync<List<TsTarget>>(baseUri + $"projects/{project.ProjectId}/targets", token)
+                if (string.IsNullOrWhiteSpace(project.Id)) {
+                    throw new InvalidOperationException($"Target Scheduler API project '{project.Name}' is missing Id.");
+                }
+
+                var targets = await GetAsync<List<TsTarget>>(baseUri + $"projects/{project.Id}/targets", token)
                     .ConfigureAwait(false) ?? new List<TsTarget>();
 
                 foreach (var target in targets) {
@@ -91,20 +99,21 @@ public sealed class TargetSchedulerClient : ITargetSchedulerClient {
         return await JsonSerializer.DeserializeAsync<T>(stream, JsonOptions, token).ConfigureAwait(false);
     }
 
+    // TS REST /ts/v0 returns GUID string Ids (not legacy integer ProfileId/ProjectId/TargetId).
     private sealed class TsProfile {
-        public string ProfileId { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public bool Active { get; set; }
     }
 
     private sealed class TsProject {
-        public int ProjectId { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public string State { get; set; }
     }
 
     private sealed class TsTarget {
-        public int TargetId { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public bool Active { get; set; }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3.0
+
+- Fix Target Scheduler API client to use GUID `Id` fields (`/ts/v0`), matching TS 5.x responses (was calling `/projects/0/targets` → 404)
+
 ## 1.0.2.0
 
 - Retarget plugin to N.I.N.A. 3.2 / `net8.0-windows` (was incorrectly requiring 3.3)
