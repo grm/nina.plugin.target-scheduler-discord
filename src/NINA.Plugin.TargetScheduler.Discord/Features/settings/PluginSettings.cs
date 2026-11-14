@@ -1,7 +1,10 @@
 using NINA.Core.Utility;
+using NINA.Core.Utility.Notification;
+using NINA.Plugin.TargetScheduler.Discord.Services;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Text.Json;
+using System.Windows.Input;
 
 namespace NINA.Plugin.TargetScheduler.Discord.Features.settings;
 
@@ -14,13 +17,17 @@ public sealed class PluginSettings : BaseINPC, IDisposable {
     private readonly string settingsPath;
     private StoredSettings stored = new();
     private bool initialized;
+    private bool isSending;
 
     [ImportingConstructor]
     public PluginSettings() {
         var id = new Plugin().Identifier;
         settingsDirectory = Path.Combine(CoreUtil.APPLICATIONTEMPPATH, "PluginSettings", id);
         settingsPath = Path.Combine(settingsDirectory, "settings.json");
+        SendStatusNowCommand = new AsyncCommand<object>(SendStatusNow, _ => !isSending);
     }
+
+    public ICommand SendStatusNowCommand { get; }
 
     public void Initialize() {
         if (initialized) {
@@ -86,6 +93,25 @@ public sealed class PluginSettings : BaseINPC, IDisposable {
 
     public void Dispose() {
         initialized = false;
+    }
+
+    private async Task<object> SendStatusNow(object arg) {
+        if (isSending) {
+            return null;
+        }
+
+        isSending = true;
+        try {
+            var count = await TargetStatusPublisher.PublishAsync(this, CancellationToken.None).ConfigureAwait(true);
+            Notification.ShowSuccess($"Discord: {count} target(s) posted");
+        } catch (Exception ex) {
+            Logger.Error("Failed to send Target Scheduler status to Discord", ex);
+            Notification.ShowError($"Discord send failed: {ex.Message}");
+        } finally {
+            isSending = false;
+        }
+
+        return null;
     }
 
     private void Persist() {

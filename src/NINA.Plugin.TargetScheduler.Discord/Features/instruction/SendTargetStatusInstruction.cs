@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using NINA.Core.Model;
-using NINA.Core.Utility;
 using NINA.Core.Utility.Notification;
 using NINA.Plugin.TargetScheduler.Discord.Features.settings;
 using NINA.Plugin.TargetScheduler.Discord.Services;
@@ -45,18 +44,13 @@ public class SendTargetStatusInstruction : SequenceItem {
         token.ThrowIfCancellationRequested();
 
         progress?.Report(new ApplicationStatus { Status = "Fetching Target Scheduler progress..." });
-        var targets = await targetSchedulerClient.GetTargetProgressAsync(
-            settings.TargetSchedulerApiBaseUrl,
-            settings.IncludeInactiveTargets,
-            token).ConfigureAwait(false);
+        var count = await TargetStatusPublisher.PublishAsync(
+            settings,
+            token,
+            targetSchedulerClient,
+            discordWebhookClient).ConfigureAwait(false);
 
-        var message = TargetProgressFormatter.FormatMessage(targets, DateTimeOffset.UtcNow);
-        Logger.Info($"Sending Target Scheduler Discord status for {targets.Count} target(s).");
-
-        progress?.Report(new ApplicationStatus { Status = "Sending Discord webhook..." });
-        await discordWebhookClient.SendContentAsync(settings.DiscordWebhookUrl, message, token).ConfigureAwait(false);
-
-        Notification.ShowSuccess($"Discord: {targets.Count} target(s) posted");
+        Notification.ShowSuccess($"Discord: {count} target(s) posted");
         progress?.Report(new ApplicationStatus { Status = string.Empty });
     }
 

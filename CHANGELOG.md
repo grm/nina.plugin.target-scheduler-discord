@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1.0
+
+- Add **Send status now** button in plugin options for on-demand Discord tests
+
 ## 1.0.0.0
 
 - Initial plugin: sequencer instruction posts Target Scheduler target progress to Discord

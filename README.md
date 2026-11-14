@@ -23,7 +23,8 @@ N.I.N.A. plugin that adds an Advanced Sequencer instruction to post **Target Sch
 1. Options → Plugins → **Target Scheduler Discord**
 2. Paste the Discord webhook URL
 3. Adjust the Target Scheduler API URL if needed
-4. In Advanced Sequencer, add **TS: Send target status to Discord**
+4. Optionally click **Send status now** to test without running a sequence
+5. In Advanced Sequencer, add **TS: Send target status to Discord**
 
 ## Example Discord message
 

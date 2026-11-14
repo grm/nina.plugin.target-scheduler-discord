@@ -20,6 +20,17 @@
             <CheckBox Margin="0,12,0,0"
                       Content="Include inactive targets"
                       IsChecked="{Binding Settings.IncludeInactiveTargets}" />
+
+            <TextBlock Margin="0,16,0,0" FontWeight="Bold" Text="Test" />
+            <TextBlock Margin="0,4,0,0"
+                       TextWrapping="Wrap"
+                       Text="Send the current Target Scheduler progress to Discord without running a sequence." />
+            <Button Margin="0,8,0,0"
+                    Padding="12,4"
+                    HorizontalAlignment="Left"
+                    Content="Send status now"
+                    Command="{Binding Settings.SendStatusNowCommand}" />
         </StackPanel>
     </DataTemplate>
 </ResourceDictionary>
+
