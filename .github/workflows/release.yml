@@ -32,7 +32,18 @@ jobs:
             $project = @(Get-ChildItem src -Filter '*.csproj' -Recurse)
             if ($project.Count -ne 1) { throw 'Expected one plugin project.' }
             $version = (& dotnet msbuild $project[0].FullName -getProperty:Version).Trim()
-            if ($LASTEXITCODE -or $version -notmatch '^\d+\.\d+\.\d+\.\d+
+            if ($LASTEXITCODE -or $version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Invalid version in Plugin.props.' }
+            $tag = "v$version"
+          }
+          . ./build/Release-Settings.ps1
+          $null = Get-ReleaseSettings -Tag $tag -Repository $env:GITHUB_REPOSITORY
+          $remoteTag = git ls-remote --tags origin "refs/tags/$tag"
+          if ($LASTEXITCODE) { throw 'Could not check remote release tag.' }
+          $publish = ($env:GITHUB_REF_TYPE -eq 'tag' -or !$remoteTag)
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "publish=$($publish.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          Write-Host "Release $tag; publish=$publish"
+      - name: Validate and package release
         shell: pwsh
         env:
           RELEASE_TAG: ${{ steps.release_meta.outputs.tag }}
@@ -267,7 +278,7 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.NINA_MANIFEST_PAT }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
         run: |
           $ErrorActionPreference = 'Stop'
           if (!$env:GH_TOKEN) { throw 'Missing NINA_MANIFEST_PAT repository secret.' }
