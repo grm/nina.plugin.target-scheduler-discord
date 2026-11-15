@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4.0
+
+- Nicer Discord status: embed card, progress bars, aggregated filters, compact complete / empty targets
+
 ## 1.0.3.0
 
 - Fix Target Scheduler API client to use GUID `Id` fields (`/ts/v0`), matching TS 5.x responses (was calling `/projects/0/targets` → 404)

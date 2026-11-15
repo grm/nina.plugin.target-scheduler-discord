@@ -22,8 +22,9 @@ public static class TargetStatusPublisher {
             token).ConfigureAwait(false);
 
         var message = TargetProgressFormatter.FormatMessage(targets, DateTimeOffset.UtcNow);
+        var color = TargetProgressFormatter.EmbedColor(targets);
         Logger.Info($"Sending Target Scheduler Discord status for {targets.Count} target(s).");
-        await discordWebhookClient.SendContentAsync(settings.DiscordWebhookUrl, message, token).ConfigureAwait(false);
+        await discordWebhookClient.SendContentAsync(settings.DiscordWebhookUrl, message, token, color).ConfigureAwait(false);
         return targets.Count;
     }
 }

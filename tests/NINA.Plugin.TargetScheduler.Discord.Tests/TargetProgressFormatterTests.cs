@@ -6,32 +6,57 @@ namespace NINA.Plugin.TargetScheduler.Discord.Tests;
 
 public class TargetProgressFormatterTests {
     [Test]
-    public void Formats_one_line_per_target_with_filter_counts() {
+    public void Formats_progress_bar_and_aggregated_filters() {
         var targets = TargetProgressCalculator.SortByProgress(new[] {
             TargetProgressCalculator.FromExposurePlans(
                 "Nebulae",
                 "M31",
                 true,
-                new[] { ("Ha", 30, 12, 15), ("OIII", 20, 5, 5) })
+                new[] { ("Ha", 30, 12, 15), ("OIII", 20, 5, 5), ("Ha", 10, 5, 5) })
         });
 
         var message = TargetProgressFormatter.FormatMessage(targets, DateTimeOffset.Parse("2026-11-14T20:00:00Z"));
 
         message.Should().Contain("Target Scheduler progress");
-        message.Should().Contain("34.0%");
+        message.Should().Contain("1 target(s) · 0 complete · 1 in progress");
+        message.Should().Contain("**37%**");
         message.Should().Contain("Nebulae / M31");
-        message.Should().Contain("Ha 12/30 (acq 15)");
-        message.Should().Contain("OIII 5/20 (acq 5)");
+        message.Should().Contain("`Ha` 17/40 (20)");
+        message.Should().Contain("`OIII` 5/20");
+        message.Should().Contain("█");
+        message.Should().Contain("░");
     }
 
     [Test]
-    public void Splits_long_messages_for_discord_limit() {
-        var longLine = new string('x', 500);
-        var content = string.Join("\n", Enumerable.Repeat(longLine, 10));
-        var chunks = TargetProgressFormatter.SplitForDiscord(content, 900);
+    public void Collapses_duplicate_project_target_name_and_empty_targets() {
+        var complete = TargetProgressCalculator.FromExposurePlans(
+            "CTB 1",
+            "CTB 1",
+            true,
+            new[] { ("H", 10, 10, 10), ("O", 10, 10, 11) });
+        var empty = TargetProgressCalculator.FromExposurePlans(
+            "Draft",
+            "M42",
+            true,
+            new[] { ("L", 30, 0, 0) });
+
+        var message = TargetProgressFormatter.FormatMessage(
+            TargetProgressCalculator.SortByProgress(new[] { complete, empty }),
+            DateTimeOffset.Parse("2026-11-14T20:00:00Z"));
+
+        message.Should().Contain("**CTB 1**");
+        message.Should().NotContain("CTB 1 / CTB 1");
+        message.Should().Contain("✓");
+        message.Should().Contain("_no frames yet_");
+    }
+
+    [Test]
+    public void Splits_long_messages_on_target_blocks() {
+        var block = "`██████████` **100%** · **Target**\n`L` 10/10";
+        var content = string.Join("\n\n", Enumerable.Repeat(block, 8));
+        var chunks = TargetProgressFormatter.SplitForDiscord(content, 200);
 
         chunks.Should().HaveCountGreaterThan(1);
-        chunks.Should().OnlyContain(chunk => chunk.Length <= 900);
-        string.Join("\n", chunks).Should().Be(content);
+        chunks.Should().OnlyContain(chunk => chunk.Length <= 200);
     }
 }
