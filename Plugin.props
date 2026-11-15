@@ -17,10 +17,10 @@
     <PluginHomepage>https://github.com/grm/nina.plugin.target-scheduler-discord</PluginHomepage>
     <PluginTags>Target Scheduler,Discord,Webhook,Sequencer,Progress</PluginTags>
     <MinimumNinaVersion>3.2.0.9001</MinimumNinaVersion>
-    <PluginLicense>MPL-2.0</PluginLicense>
-    <PluginLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PluginLicenseUrl>
-    <PluginChangelogUrl>https://github.com/grm/nina.plugin.target-scheduler-discord/blob/main/CHANGELOG.md</PluginChangelogUrl>
-    <PluginFeaturedImageUrl></PluginFeaturedImageUrl>
+    <PluginLicense>Unlicense</PluginLicense>
+    <PluginLicenseUrl>https://unlicense.org/</PluginLicenseUrl>
+    <PluginChangelogUrl>https://github.com/grm/nina.plugin.target-scheduler-discord/blob/master/CHANGELOG.md</PluginChangelogUrl>
+    <PluginFeaturedImageUrl>https://raw.githubusercontent.com/grm/nina.plugin.target-scheduler-discord/master/docs/images/plugin-icon.svg</PluginFeaturedImageUrl>
     <PluginScreenshotUrl></PluginScreenshotUrl>
     <PluginAltScreenshotUrl></PluginAltScreenshotUrl>
   </PropertyGroup>

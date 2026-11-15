@@ -1,6 +1,7 @@
 ﻿name: Publish plugin
 on:
   push:
+    branches: [master]
     tags: ['v*']
 permissions:
   contents: read
@@ -10,6 +11,9 @@ concurrency:
 jobs:
   package:
     runs-on: windows-latest
+    outputs:
+      tag: ${{ steps.release_meta.outputs.tag }}
+      publish: ${{ steps.release_meta.outputs.publish }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
@@ -17,10 +21,32 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
+      - name: Determine stable version and release trigger
+        id: release_meta
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $tag = $env:GITHUB_REF_NAME
+          } else {
+            $project = @(Get-ChildItem src -Filter '*.csproj' -Recurse)
+            if ($project.Count -ne 1) { throw 'Expected one plugin project.' }
+            $version = (& dotnet msbuild $project[0].FullName -getProperty:Version).Trim()
+            if ($LASTEXITCODE -or $version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Invalid version in Plugin.props.' }
+            $tag = "v$version"
+          }
+          . ./build/Release-Settings.ps1
+          $null = Get-ReleaseSettings -Tag $tag -Repository $env:GITHUB_REPOSITORY
+          $remoteTag = git ls-remote --tags origin "refs/tags/$tag"
+          if ($LASTEXITCODE) { throw 'Could not check remote release tag.' }
+          $publish = ($env:GITHUB_REF_TYPE -eq 'tag' -or !$remoteTag)
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "publish=$($publish.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          Write-Host "Release $tag; publish=$publish"
       - name: Validate and package release
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ steps.release_meta.outputs.tag }}
           PLUGIN_REPOSITORY: ${{ github.repository }}
           PLUGIN_CHANNEL: ${{ vars.PLUGIN_CHANNEL || 'Release' }}
         run: ./build/Build-Release.ps1 -Tag $env:RELEASE_TAG -Repository $env:PLUGIN_REPOSITORY -Channel $env:PLUGIN_CHANNEL
@@ -31,6 +57,7 @@ jobs:
           if-no-files-found: error
   publish:
     needs: package
+    if: needs.package.outputs.publish == 'true'
     runs-on: windows-latest
     permissions:
       contents: write
@@ -43,22 +70,58 @@ jobs:
       - name: Verify downloaded artifacts before publication
         shell: pwsh
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
           PLUGIN_REPOSITORY: ${{ github.repository }}
         run: ./build/Verify-ReleaseArtifacts.ps1 -Directory release -Tag $env:RELEASE_TAG -Repository $env:PLUGIN_REPOSITORY
+      - name: Validate manifest against official N.I.N.A. catalogue
+        shell: pwsh
+        run: |
+          $manifest = @(Get-ChildItem release -Filter '*.manifest.json')
+          if ($manifest.Count -ne 1) { throw 'Expected exactly one release manifest.' }
+          $json = Get-Content $manifest[0].FullName -Raw | ConvertFrom-Json
+          $version = "$($json.Version.Major).$($json.Version.Minor).$($json.Version.Patch).$($json.Version.Build)"
+          git clone --depth 1 https://github.com/isbeorn/nina.plugin.manifests.git nina-manifests
+          $dest = 'nina-manifests/manifests/t/Target Scheduler Discord/3.0.0'
+          New-Item -Path $dest -ItemType Directory -Force | Out-Null
+          Copy-Item $manifest[0].FullName (Join-Path $dest "manifest.$version.json")
+          Push-Location nina-manifests
+          try {
+            npm install
+            if ($LASTEXITCODE) { throw 'npm install failed.' }
+            node gather.js
+            if ($LASTEXITCODE) { throw 'Official N.I.N.A. gather.js validation failed.' }
+          } finally { Pop-Location }
+      - name: Create stable version tag if publishing from master
+        if: github.ref_type == 'branch'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $head = (git rev-parse HEAD).Trim()
+          $currentMaster = (gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/master" --jq '.object.sha').Trim()
+          if ($LASTEXITCODE -or $currentMaster -ne $head) {
+            throw 'master moved since this workflow started. Refusing to tag a stale commit.'
+          }
+          git tag $env:RELEASE_TAG
+          if ($LASTEXITCODE) { throw 'Cannot create release tag.' }
+          git push origin "refs/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE) { throw 'Cannot push release tag.' }
       - name: Publish verified assets
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           files: release/*
           fail_on_unmatched_files: true
           overwrite_files: false
+          tag_name: ${{ needs.package.outputs.tag }}
           draft: false
           prerelease: ${{ vars.PLUGIN_CHANNEL == 'Beta' }}
       - name: Verify the assets actually published
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
           PLUGIN_REPOSITORY: ${{ github.repository }}
         run: |
           gh release download $env:RELEASE_TAG --repo $env:PLUGIN_REPOSITORY --dir published --pattern '*.zip' --pattern '*.manifest.json'
@@ -69,3 +132,63 @@ jobs:
           name: published-release
           path: published/*
           if-no-files-found: error
+      - name: Propose release to official N.I.N.A. plugin catalogue
+        if: ${{ vars.PLUGIN_CHANNEL != 'Beta' }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.NINA_MANIFEST_PAT }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (!$env:GH_TOKEN) { throw 'Missing NINA_MANIFEST_PAT repository secret.' }
+          $upstream = 'isbeorn/nina.plugin.manifests'
+          $forkOwner = (gh api user --jq '.login').Trim()
+          if ($LASTEXITCODE -or !$forkOwner) { throw 'NINA_MANIFEST_PAT cannot authenticate to GitHub.' }
+          $fork = "$forkOwner/nina.plugin.manifests"
+          gh repo view $fork --json name -q .name *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh repo fork $upstream --clone=false
+            if ($LASTEXITCODE) { throw 'Cannot create manifest fork. Check PAT permissions.' }
+          }
+          $branch = "target-scheduler-discord-$env:RELEASE_TAG"
+          $existing = gh pr list -R $upstream --state all --head "$($forkOwner):$branch" --json number --jq '.[0].number'
+          if ($LASTEXITCODE) { throw 'Cannot inspect existing manifest pull requests.' }
+          if ($existing) {
+            Write-Host "Manifest PR #$existing already exists; nothing to do."
+            exit 0
+          }
+          git clone --depth 1 https://github.com/$upstream.git catalogue
+          if ($LASTEXITCODE) { throw 'Cannot clone official N.I.N.A. manifests.' }
+          Push-Location catalogue
+          try {
+            git checkout -b $branch
+            $manifest = @(Get-ChildItem ../published -Filter '*.manifest.json')
+            if ($manifest.Count -ne 1) { throw 'Expected exactly one verified manifest.' }
+            $json = Get-Content $manifest[0].FullName -Raw | ConvertFrom-Json
+            $version = "$($json.Version.Major).$($json.Version.Minor).$($json.Version.Patch).$($json.Version.Build)"
+            $destination = 'manifests/t/Target Scheduler Discord/3.0.0'
+            New-Item -Path $destination -ItemType Directory -Force | Out-Null
+            Copy-Item $manifest[0].FullName (Join-Path $destination "manifest.$version.json")
+            npm install
+            if ($LASTEXITCODE) { throw 'npm install failed.' }
+            node gather.js
+            if ($LASTEXITCODE) { throw 'Official manifest validation failed.' }
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- $destination
+            git diff --cached --quiet
+            if ($LASTEXITCODE -ne 0) {
+              git commit -m "Add Target Scheduler Discord $version"
+              if ($LASTEXITCODE) { throw 'Manifest commit failed.' }
+            } else {
+              Write-Host 'Manifest already present upstream; nothing to propose.'
+              exit 0
+            }
+            gh auth setup-git
+            if ($LASTEXITCODE) { throw 'Cannot configure Git authentication.' }
+            git remote add fork "https://github.com/$fork.git"
+            git push fork "HEAD:refs/heads/$branch"
+            if ($LASTEXITCODE) { throw 'Cannot push manifest branch to fork.' }
+          } finally { Pop-Location }
+          gh pr create -R $upstream --base main --head "$($forkOwner):$branch" --title "Add Target Scheduler Discord $version" --body "Official N.I.N.A. plugin manifest for $env:RELEASE_TAG. Built and verified by GitHub Actions, including release archive SHA-256 and gather.js validation."
+          if ($LASTEXITCODE) { throw 'Unable to create official catalogue PR.' }
