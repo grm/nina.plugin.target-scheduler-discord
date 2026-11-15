@@ -6,7 +6,7 @@ namespace NINA.Plugin.TargetScheduler.Discord.Tests;
 
 public class TargetProgressFormatterTests {
     [Test]
-    public void Formats_progress_bar_and_aggregated_filters() {
+    public void Formats_night_summary_style_overview_and_targets() {
         var targets = TargetProgressCalculator.SortByProgress(new[] {
             TargetProgressCalculator.FromExposurePlans(
                 "Nebulae",
@@ -17,18 +17,20 @@ public class TargetProgressFormatterTests {
 
         var message = TargetProgressFormatter.FormatMessage(targets, DateTimeOffset.Parse("2026-11-14T20:00:00Z"));
 
-        message.Should().Contain("Target Scheduler progress");
-        message.Should().Contain("1 target(s) · 0 complete · 1 in progress");
+        message.Should().Contain("🔭 Target Scheduler Progress");
+        message.Should().Contain("**Overview**");
+        message.Should().Contain("Targets: 1");
+        message.Should().Contain("In progress: 1");
+        message.Should().Contain("**🌌 Nebulae / M31** 🔄");
         message.Should().Contain("**37%**");
-        message.Should().Contain("Nebulae / M31");
-        message.Should().Contain("`Ha` 17/40 (20)");
-        message.Should().Contain("`OIII` 5/20");
-        message.Should().Contain("█");
-        message.Should().Contain("░");
+        message.Should().Contain("Ha: 17/40 (20 acq)");
+        message.Should().Contain("OIII: 5/20");
+        message.Should().Contain("**Accepted:** 22/60");
+        message.Should().Contain("|");
     }
 
     [Test]
-    public void Collapses_duplicate_project_target_name_and_empty_targets() {
+    public void Uses_status_icons_for_complete_and_empty_targets() {
         var complete = TargetProgressCalculator.FromExposurePlans(
             "CTB 1",
             "CTB 1",
@@ -44,15 +46,16 @@ public class TargetProgressFormatterTests {
             TargetProgressCalculator.SortByProgress(new[] { complete, empty }),
             DateTimeOffset.Parse("2026-11-14T20:00:00Z"));
 
-        message.Should().Contain("**CTB 1**");
+        message.Should().Contain("**🌌 CTB 1** ✅");
         message.Should().NotContain("CTB 1 / CTB 1");
-        message.Should().Contain("✓");
+        message.Should().Contain("H: 10/10 | O: 10/10");
+        message.Should().Contain("**🌌 Draft / M42** 🌑");
         message.Should().Contain("_no frames yet_");
     }
 
     [Test]
     public void Splits_long_messages_on_target_blocks() {
-        var block = "`██████████` **100%** · **Target**\n`L` 10/10";
+        var block = "**🌌 Target** 🔄\n`██████████` **100%**\nL: 10/10";
         var content = string.Join("\n\n", Enumerable.Repeat(block, 8));
         var chunks = TargetProgressFormatter.SplitForDiscord(content, 200);
 

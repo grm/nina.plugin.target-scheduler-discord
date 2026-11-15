@@ -28,20 +28,32 @@ N.I.N.A. plugin that adds an Advanced Sequencer instruction to post **Target Sch
 
 ## Example Discord message
 
-Posted as a Discord embed, for example:
+Posted as a Discord embed (Night Summary–style), for example:
 
 ```text
-Target Scheduler progress
-14 Nov 2026 20:00 UTC · 2 target(s) · 0 complete · 2 in progress
+🔭 Target Scheduler Progress
+2026-11-14 20:00 UTC
 
-`███████░░░` **72%** · **Nebulae / M31**
-`Ha` 45/60 (50) · `OIII` 20/30
+**Overview**
+Targets: 2
+Complete: 0
+In progress: 2
+Not started: 0
+Accepted / Desired: 68/120
+`█████░░░░░` **57%** avg
 
-`█░░░░░░░░░` **10%** · **Galaxies / M81**
-`L` 3/30
+**🌌 Nebulae / M31** 🔄
+`███████░░░` **72%**
+Ha: 45/60 (50 acq) | OIII: 20/30
+**Accepted:** 65/90
+
+**🌌 Galaxies / M81** 🔄
+`█░░░░░░░░░` **10%**
+L: 3/30
+**Accepted:** 3/30
 ```
 
-Same-name filters are aggregated. Fully complete targets show filter names with a checkmark; targets with no frames yet show a short placeholder.
+Icons: ✅ complete · 🔄 in progress · 🌑 not started. Same-name filters are aggregated.
 
 ## Build & release (CI)
 

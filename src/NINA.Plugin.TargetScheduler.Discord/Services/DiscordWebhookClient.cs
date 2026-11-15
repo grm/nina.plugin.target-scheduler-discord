@@ -33,16 +33,10 @@ public sealed class DiscordWebhookClient : IDiscordWebhookClient {
             token.ThrowIfCancellationRequested();
 
             var title = index == 0
-                ? "Target Scheduler progress"
-                : $"Target Scheduler progress ({index + 1}/{chunks.Count})";
+                ? TargetProgressFormatter.EmbedTitle
+                : $"{TargetProgressFormatter.EmbedTitle} ({index + 1}/{chunks.Count})";
 
-            // Strip the leading markdown title from the first chunk so it is not duplicated in the embed.
-            var description = chunks[index];
-            const string titlePrefix = "**Target Scheduler progress**";
-            if (description.StartsWith(titlePrefix, StringComparison.Ordinal)) {
-                var firstNewline = description.IndexOf('\n');
-                description = firstNewline >= 0 ? description[(firstNewline + 1)..].TrimStart() : string.Empty;
-            }
+            var description = StripEmbeddedTitle(chunks[index]);
 
             var payload = JsonSerializer.Serialize(new {
                 embeds = new[] {
@@ -66,5 +60,25 @@ public sealed class DiscordWebhookClient : IDiscordWebhookClient {
                 response.EnsureSuccessStatusCode();
             }
         }
+    }
+
+    private static string StripEmbeddedTitle(string description) {
+        var prefixes = new[] {
+            $"**{TargetProgressFormatter.EmbedTitle}**",
+            TargetProgressFormatter.EmbedTitle,
+            "**Target Scheduler progress**",
+            "Target Scheduler progress"
+        };
+
+        foreach (var prefix in prefixes) {
+            if (!description.StartsWith(prefix, StringComparison.Ordinal)) {
+                continue;
+            }
+
+            var firstNewline = description.IndexOf('\n');
+            return firstNewline >= 0 ? description[(firstNewline + 1)..].TrimStart() : string.Empty;
+        }
+
+        return description;
     }
 }

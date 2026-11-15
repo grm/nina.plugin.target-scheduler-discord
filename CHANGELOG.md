@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5.0
+
+- Night Summary–style Discord report: 🔭 title, **Overview** stats, 🌌 targets with ✅/🔄/🌑 icons, filter lines as `H: 60/60 | O: 60/60`
+
 ## 1.0.4.0
 
 - Nicer Discord status: embed card, progress bars, aggregated filters, compact complete / empty targets
