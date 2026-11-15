@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6.0
+
+- First stable release with updated N.I.N.A. plugin metadata, corrected license and changelog URL, and a new visual identity.
+- Automated release verification using the official N.I.N.A. manifest tooling and submission of the stable manifest to the upstream plugin catalogue.
+
 ## 1.0.5.0
 
 - Night Summary–style Discord report: 🔭 title, **Overview** stats, 🌌 targets with ✅/🔄/🌑 icons, filter lines as `H: 60/60 | O: 60/60`
