@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NINA.Plugin" Version="$(NinaPackageVersion)" />
+    <InternalsVisibleTo Include="NINA.Plugin.TargetScheduler.Discord.Tests" />
   </ItemGroup>
   <Import Project="../../build/Plugin.targets" />
 </Project>

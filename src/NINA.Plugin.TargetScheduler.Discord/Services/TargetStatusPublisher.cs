@@ -13,6 +13,9 @@ public static class TargetStatusPublisher {
             throw new ArgumentNullException(nameof(settings));
         }
 
+        token.ThrowIfCancellationRequested();
+        settings.Reload();
+
         targetSchedulerClient ??= new TargetSchedulerClient();
         discordWebhookClient ??= new DiscordWebhookClient();
 

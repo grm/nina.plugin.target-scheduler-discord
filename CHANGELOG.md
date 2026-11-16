@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7.0
+
+- Fix Advanced Sequencer sends failing with "Discord webhook URL is not configured" while the options test succeeds. Each send now reloads the saved settings shared by N.I.N.A.'s separate options and sequencer instances.
+- Existing and cloned instructions pick up changes to the webhook, Target Scheduler API URL and inactive-target option without being recreated.
+- Add regression coverage for separate settings instances, updated settings and cloned instructions.
+
 ## 1.0.6.0
 
 - First stable release with updated N.I.N.A. plugin metadata, corrected license and changelog URL, and a new visual identity.
