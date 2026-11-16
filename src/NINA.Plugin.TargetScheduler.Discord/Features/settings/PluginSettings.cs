@@ -20,9 +20,12 @@ public sealed class PluginSettings : BaseINPC, IDisposable {
     private bool isSending;
 
     [ImportingConstructor]
-    public PluginSettings() {
-        var id = new Plugin().Identifier;
-        settingsDirectory = Path.Combine(CoreUtil.APPLICATIONTEMPPATH, "PluginSettings", id);
+    public PluginSettings()
+        : this(Path.Combine(CoreUtil.APPLICATIONTEMPPATH, "PluginSettings", new Plugin().Identifier)) {
+    }
+
+    internal PluginSettings(string settingsDirectory) {
+        this.settingsDirectory = settingsDirectory;
         settingsPath = Path.Combine(settingsDirectory, "settings.json");
         SendStatusNowCommand = new AsyncCommand<object>(SendStatusNow, _ => !isSending);
     }
@@ -34,6 +37,13 @@ public sealed class PluginSettings : BaseINPC, IDisposable {
             return;
         }
 
+        Reload();
+    }
+
+    // N.I.N.A. composes the options and sequencer in separate MEF containers.
+    // Shared exports are scoped to a container, so refresh from the common file
+    // before sending, including for instructions cloned before an options edit.
+    public void Reload() {
         if (File.Exists(settingsPath)) {
             try {
                 stored = JsonSerializer.Deserialize<StoredSettings>(File.ReadAllText(settingsPath)) ?? new StoredSettings();
@@ -41,6 +51,8 @@ public sealed class PluginSettings : BaseINPC, IDisposable {
                 Logger.Error("Failed to load Target Scheduler Discord settings", ex);
                 stored = new StoredSettings();
             }
+        } else {
+            stored = new StoredSettings();
         }
 
         initialized = true;
